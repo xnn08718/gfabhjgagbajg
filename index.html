@@ -1,28 +1,50 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>隨機匿名聊天</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LiveAny Clone</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+    #online-count { color: red; font-weight: bold; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>隨機匿名聊天</h1>
-        </header>
+  <h1>LiveAny</h1>
+  <p>在線人數: <span id="online-count">0</span></p>
+  <div>
+    <input type="text" id="chat-message" placeholder="請在此輸入聊天訊息">
+    <button id="send-btn">送出</button>
+  </div>
+  <div id="chat-box"></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const onlineCount = document.getElementById('online-count');
+    const chatBox = document.getElementById('chat-box');
+    const sendBtn = document.getElementById('send-btn');
+    const chatMessage = document.getElementById('chat-message');
 
-        <div class="main-content">
-            <p>點擊下方按鈕開始隨機聊天，您將與一個匿名用戶配對並開始對話。</p>
-            <button id="start-chat" onclick="startChat()">開始聊天</button>
-        </div>
+    socket.on('online-count', (count) => {
+      onlineCount.textContent = count;
+    });
 
-        <footer>
-            <p>隨時退出並重新配對！</p>
-        </footer>
-    </div>
+    sendBtn.addEventListener('click', () => {
+      const message = chatMessage.value;
+      if (message) {
+        socket.emit('send-message', message);
+        chatMessage.value = '';
+      }
+    });
 
-    <script src="app.js"></script>
+    socket.on('receive-message', (msg) => {
+      const p = document.createElement('p');
+      p.textContent = msg;
+      chatBox.appendChild(p);
+    });
+  </script>
 </body>
 </html>
+
+
 
